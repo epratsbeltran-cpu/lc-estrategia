@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estrategia Web — @preciadamente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --verde:         #7BAF8E;
+      --verde-light:   #A8CDB8;
+      --verde-dark:    #5A8A6E;
+      --melocoton:     #F4A97F;
+      --melocoton-light: #F9CDB3;
+      --crema:         #FDF8F2;
+      --crema-dark:    #F0E8DC;
+      --texto:         #2D2D2D;
+      --gris:          #6B6B6B;
+      --gris-light:    #BCBCBC;
+      --blanco:        #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--crema);
+      color: var(--texto);
+      line-height: 1.6;
+      -webkit-overflow-scrolling: touch;
+    }
+    html { overflow-x: hidden; }
+
+    /* ── PROGRESS BAR ── */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--verde), var(--melocoton));
+      width: 0%;
+      z-index: 1000;
+      transition: width 0.1s linear;
+    }
+
+    /* ── STICKY NAV ── */
+    #sticky-nav {
+      position: fixed;
+      top: 20px; right: 24px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--blanco);
+      border-radius: 16px;
+      padding: 12px 10px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--crema-dark);
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .nav-dot:hover, .nav-dot.active {
+      background: var(--verde);
+      transform: scale(1.4);
+    }
+    .nav-dot .nav-tooltip {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--texto);
+      color: var(--blanco);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      padding: 5px 10px;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .nav-dot:hover .nav-tooltip { opacity: 1; }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--verde);
+      color: var(--blanco);
+      padding: 80px 40px 70px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header-orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .header-orb.o1 {
+      width: 300px; height: 300px;
+      top: -80px; right: -60px;
+      background: var(--verde-light);
+      opacity: 0.3;
+      animation: float 6s ease-in-out infinite;
+    }
+    .header-orb.o2 {
+      width: 200px; height: 200px;
+      bottom: -70px; left: -30px;
+      background: var(--melocoton);
+      opacity: 0.2;
+      animation: float 8s ease-in-out infinite reverse;
+    }
+    .header-orb.o3 {
+      width: 120px; height: 120px;
+      top: 40%; left: 15%;
+      background: var(--blanco);
+      opacity: 0.06;
+      animation: float 5s ease-in-out infinite 1s;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-18px); }
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: var(--blanco);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 7px 20px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+      position: relative; z-index: 1;
+    }
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(30px, 5vw, 52px);
+      font-weight: 700;
+      margin-bottom: 16px;
+      position: relative; z-index: 1;
+      line-height: 1.2;
+    }
+    .header p {
+      font-size: 16px;
+      opacity: 0.88;
+      max-width: 520px;
+      margin: 0 auto 24px;
+      position: relative; z-index: 1;
+    }
+    .header-handle {
+      display: inline-block;
+      background: var(--melocoton);
+      color: var(--blanco);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 10px 24px;
+      border-radius: 30px;
+      position: relative; z-index: 1;
+    }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      background: var(--blanco);
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      border-bottom: 1px solid var(--crema-dark);
+    }
+    .stat-item {
+      padding: 28px 48px;
+      text-align: center;
+      border-right: 1px solid var(--crema-dark);
+      flex: 1;
+      max-width: 220px;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--verde);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-size: 12px; color: var(--gris); }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .section {
+      padding: 72px 0;
+    }
+    .section + .section { border-top: 1px solid var(--crema-dark); }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--verde);
+      margin-bottom: 12px;
+    }
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--verde);
+      border-radius: 2px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(22px, 3.5vw, 32px);
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+    .section-sub {
+      font-size: 15px;
+      color: var(--gris);
+      margin-bottom: 36px;
+      max-width: 540px;
+    }
+
+    /* ── FRAMEWORK ── */
+    .framework-card {
+      background: var(--blanco);
+      border-radius: 20px;
+      padding: 40px;
+      border-left: 6px solid var(--verde);
+      box-shadow: 0 4px 24px rgba(123,175,142,0.12);
+    }
+    .framework-card p { font-size: 15px; color: var(--gris); line-height: 1.75; margin-bottom: 28px; }
+
+    .story-roles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .role-card {
+      background: var(--crema);
+      border-radius: 16px;
+      padding: 24px 20px;
+      text-align: center;
+      cursor: default;
+      transition: transform 0.25s, box-shadow 0.25s;
+      border: 2px solid transparent;
+    }
+    .role-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px rgba(123,175,142,0.18);
+      border-color: var(--verde-light);
+    }
+    .role-emoji { font-size: 36px; margin-bottom: 10px; }
+    .role-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--verde);
+      margin-bottom: 6px;
+    }
+    .role-card strong { color: var(--texto); font-size: 15px; display: block; margin-bottom: 6px; }
+    .role-card p { font-size: 13px; color: var(--gris); margin: 0; }
+
+    /* ── VPC TABS ── */
+    .vpc-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .vpc-tab {
+      padding: 9px 20px;
+      border-radius: 30px;
+      border: 2px solid var(--crema-dark);
+      background: var(--blanco);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gris);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .vpc-tab:hover { border-color: var(--verde-light); color: var(--verde); }
+    .vpc-tab.active {
+      background: var(--verde);
+      border-color: var(--verde);
+      color: var(--blanco);
+    }
+    .vpc-panel { display: none; }
+    .vpc-panel.active { display: block; animation: fadeIn 0.35s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    .vpc-content {
+      background: var(--blanco);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+    .vpc-content h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+    .vpc-content .vpc-intro { font-size: 14px; color: var(--gris); margin-bottom: 20px; }
+    .vpc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .vpc-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 15px;
+      color: var(--texto);
+      padding: 12px 16px;
+      background: var(--crema);
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+    .vpc-list li:hover { background: var(--crema-dark); }
+    .vpc-list li span { flex-shrink: 0; font-size: 18px; }
+
+    /* ── MENSAJES ── */
+    .msg-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .msg-tab {
+      padding: 9px 20px;
+      border-radius: 30px;
+      border: 2px solid var(--crema-dark);
+      background: var(--blanco);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gris);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .msg-tab.active { background: var(--melocoton); border-color: var(--melocoton); color: var(--blanco); }
+
+    .msg-panel { display: none; }
+    .msg-panel.active { display: block; animation: fadeIn 0.35s ease; }
+
+    .msg-card {
+      background: var(--blanco);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+    .msg-badge {
+      display: inline-block;
+      background: var(--crema-dark);
+      color: var(--gris);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .msg-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(18px, 3vw, 26px);
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--texto);
+      border-left: 4px solid var(--melocoton);
+      padding-left: 20px;
+      margin-bottom: 16px;
+    }
+    .msg-why { font-size: 14px; color: var(--gris); }
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 16px;
+      padding: 8px 18px;
+      background: var(--crema-dark);
+      border: none;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gris);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { background: var(--verde); color: var(--blanco); }
+    .copy-btn.copied { background: var(--verde); color: var(--blanco); }
+
+    /* ── HERO PREVIEW ── */
+    .hero-preview {
+      background: var(--verde);
+      border-radius: 20px;
+      padding: 48px 40px;
+      color: var(--blanco);
+      position: relative;
+      overflow: hidden;
+      margin-top: 24px;
+    }
+    .hero-preview::before {
+      content: '';
+      position: absolute;
+      top:-50px; right:-50px;
+      width:200px; height:200px;
+      background: var(--verde-light);
+      border-radius:50%;
+      opacity:0.3;
+      animation: float 7s ease-in-out infinite;
+    }
+    .hero-preview::after {
+      content: '';
+      position: absolute;
+      bottom:-60px; left:-30px;
+      width:180px; height:180px;
+      background: var(--melocoton);
+      border-radius:50%;
+      opacity:0.15;
+      animation: float 9s ease-in-out infinite reverse;
+    }
+    .preview-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.65;
+      margin-bottom: 20px;
+    }
+    .hero-preview h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(22px, 4vw, 34px);
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 14px;
+      max-width: 520px;
+      position: relative; z-index: 1;
+    }
+    .hero-preview p {
+      font-size: 15px;
+      opacity: 0.88;
+      max-width: 480px;
+      margin-bottom: 28px;
+      position: relative; z-index: 1;
+    }
+    .hero-btns {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      position: relative; z-index: 1;
+    }
+    .btn-primary {
+      background: var(--melocoton);
+      color: var(--blanco);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 14px 28px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-block;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(244,169,127,0.5); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.15);
+      color: var(--blanco);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 14px 28px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.35);
+      cursor: pointer;
+      transition: background 0.2s;
+      display: inline-block;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.25); }
+
+    /* ── ARQUITECTURA ── */
+    .sections-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+    .sections-timeline::before {
+      content: '';
+      position: absolute;
+      left: 21px; top: 0; bottom: 0;
+      width: 2px;
+      background: var(--crema-dark);
+      z-index: 0;
+    }
+    .tl-item {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+    .tl-item:last-child .tl-body { border-bottom: none; }
+    .tl-dot-wrap {
+      flex-shrink: 0;
+      width: 44px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+      padding-top: 16px;
+    }
+    .tl-dot {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--crema-dark);
+      border: 3px solid var(--crema);
+      transition: all 0.3s;
+    }
+    .tl-item:hover .tl-dot, .tl-item.open .tl-dot {
+      background: var(--verde);
+      transform: scale(1.3);
+    }
+    .tl-body {
+      flex: 1;
+      background: var(--blanco);
+      border-radius: 16px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: box-shadow 0.3s;
+    }
+    .tl-item:hover .tl-body, .tl-item.open .tl-body {
+      box-shadow: 0 6px 24px rgba(123,175,142,0.15);
+    }
+    .tl-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 24px;
+    }
+    .tl-num {
+      width: 32px; height: 32px;
+      border-radius: 10px;
+      background: var(--crema-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--verde);
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+    .tl-item.open .tl-num { background: var(--verde); color: var(--blanco); }
+    .tl-title-wrap { flex: 1; }
+    .tl-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--texto);
+    }
+    .tl-sub { font-size: 12px; color: var(--gris); }
+    .tl-arrow {
+      font-size: 14px;
+      color: var(--gris-light);
+      transition: transform 0.3s;
+    }
+    .tl-item.open .tl-arrow { transform: rotate(90deg); color: var(--verde); }
+    .tl-detail {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
+      font-size: 14px;
+      color: var(--gris);
+      line-height: 1.7;
+    }
+    .tl-item.open .tl-detail {
+      max-height: 200px;
+      padding: 0 24px 20px;
+    }
+    .tl-detail ul { list-style: none; padding: 0; }
+    .tl-detail ul li { padding: 3px 0; padding-left: 14px; position: relative; }
+    .tl-detail ul li::before { content: '→'; position: absolute; left: 0; color: var(--melocoton); }
+
+    /* ── COLORES INTERACTIVOS ── */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .color-swatch {
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      transition: transform 0.25s, box-shadow 0.25s;
+      position: relative;
+    }
+    .color-swatch:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(0,0,0,0.14); }
+    .swatch-block {
+      height: 100px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .swatch-copy-icon {
+      opacity: 0;
+      font-size: 22px;
+      transition: opacity 0.2s;
+    }
+    .color-swatch:hover .swatch-copy-icon { opacity: 1; }
+    .swatch-info {
+      background: var(--blanco);
+      padding: 14px 16px;
+    }
+    .swatch-name { font-weight: 700; font-size: 14px; color: var(--texto); }
+    .swatch-hex { font-size: 12px; font-family: monospace; color: var(--gris); margin: 2px 0; }
+    .swatch-role { font-size: 11px; color: var(--gris-light); }
+    .swatch-toast {
+      position: absolute;
+      top: 8px; right: 8px;
+      background: rgba(0,0,0,0.7);
+      color: var(--blanco);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .color-swatch.copied .swatch-toast { opacity: 1; }
+
+    /* ── TIPOGRAFIA ── */
+    .font-demo {
+      background: var(--blanco);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      margin-top: 16px;
+    }
+    .font-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    .font-tag {
+      display: inline-block;
+      background: var(--crema-dark);
+      color: var(--gris);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .font-divider {
+      width: 1px;
+      background: var(--crema-dark);
+      align-self: stretch;
+    }
+
+    /* ── CIALDINI ── */
+    .cialdini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .cial-card {
+      background: var(--blanco);
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      border-top: 4px solid var(--verde);
+      cursor: pointer;
+      transition: transform 0.25s, box-shadow 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .cial-card:nth-child(even) { border-top-color: var(--melocoton); }
+    .cial-card:hover { transform: translateY(-6px); box-shadow: 0 14px 36px rgba(0,0,0,0.1); }
+    .cial-card.expanded { background: var(--verde); color: var(--blanco); }
+    .cial-card:nth-child(even).expanded { background: var(--melocoton); }
+    .cial-card.expanded .cial-title,
+    .cial-card.expanded .cial-desc { color: var(--blanco); }
+    .cial-card.expanded .cial-example { display: block; }
+    .cial-emoji { font-size: 30px; margin-bottom: 12px; display: block; }
+    .cial-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      transition: color 0.3s;
+    }
+    .cial-desc { font-size: 13px; color: var(--gris); line-height: 1.65; transition: color 0.3s; }
+    .cial-example {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.3);
+      font-size: 13px;
+      font-style: italic;
+      opacity: 0.9;
+      animation: fadeIn 0.3s ease;
+    }
+    .cial-hint {
+      position: absolute;
+      bottom: 12px; right: 16px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gris-light);
+      transition: color 0.3s;
+    }
+    .cial-card.expanded .cial-hint { color: rgba(255,255,255,0.5); }
+
+    /* ── NEXT STEPS ── */
+    .next-card {
+      background: var(--texto);
+      color: var(--blanco);
+      border-radius: 24px;
+      padding: 52px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .next-card::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 250px; height: 250px;
+      background: var(--verde);
+      border-radius: 50%;
+      opacity: 0.15;
+    }
+    .next-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      margin-bottom: 8px;
+      position: relative; z-index: 1;
+    }
+    .next-card > p {
+      opacity: 0.6;
+      font-size: 14px;
+      margin-bottom: 36px;
+      position: relative; z-index: 1;
+    }
+    .steps-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      position: relative; z-index: 1;
+    }
+    .step {
+      background: rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 28px 24px;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: background 0.2s;
+    }
+    .step:hover { background: rgba(255,255,255,0.12); }
+    .step-n {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--melocoton);
+      margin-bottom: 10px;
+      line-height: 1;
+    }
+    .step h4 { font-size: 15px; margin-bottom: 6px; }
+    .step p { font-size: 13px; opacity: 0.55; }
+
+    /* ── FOOTER ── */
+    .doc-footer {
+      text-align: center;
+      padding: 40px 24px;
+      font-size: 13px;
+      color: var(--gris);
+      border-top: 1px solid var(--crema-dark);
+    }
+    .doc-footer strong { color: var(--verde); }
+
+    /* ── TOOLTIP GLOBAL ── */
+    #global-toast {
+      position: fixed;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--texto);
+      color: var(--blanco);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 24px;
+      border-radius: 50px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s;
+      z-index: 2000;
+    }
+    #global-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      #sticky-nav { display: none; }
+      .story-roles { grid-template-columns: 1fr; }
+      .color-grid { grid-template-columns: repeat(2, 1fr); }
+      .cialdini-grid { grid-template-columns: 1fr; }
+      .steps-row { grid-template-columns: 1fr; }
+      .font-row { grid-template-columns: 1fr; }
+      .font-divider { display: none; }
+      .stat-item { padding: 20px 16px; max-width: 50%; }
+      .stats-strip { flex-wrap: wrap; }
+      .header { padding: 48px 24px 44px; }
+      .next-card { padding: 36px 24px; }
+
+      .vpc-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+      .vpc-tab { flex-shrink: 0; }
+      .msg-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+      .msg-tab { flex-shrink: 0; }
+
+      .framework-card { padding: 24px 18px; }
+      .vpc-content { padding: 24px 18px; }
+      .msg-card { padding: 24px 18px; }
+      .msg-quote { font-size: 17px; }
+
+      .tl-header { padding: 14px 16px; gap: 10px; }
+      .tl-item.open .tl-detail { padding: 0 16px 16px; }
+
+      .hero-preview { padding: 36px 24px; }
+      .hero-btns { flex-direction: column; }
+      .btn-primary, .btn-secondary { text-align: center; }
+    }
+
+    #pw-overlay { position:fixed;inset:0;background:#FDF8F2;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px; }
+    #pw-box { text-align:center;max-width:340px;width:100%; }
+    #pw-input { width:100%;padding:14px 20px;border:2px solid #E8DDD0;border-radius:50px;font-size:16px;outline:none;text-align:center;background:#fff;color:#2D2D2D;margin-bottom:12px;box-sizing:border-box; }
+    #pw-btn { width:100%;padding:14px;background:#7BAF8E;color:#fff;border:none;border-radius:50px;font-size:15px;font-weight:700;cursor:pointer; }
+    #pw-error { color:#F4A97F;font-size:13px;margin-top:12px;opacity:0;transition:opacity 0.3s; }
+  </style>
+</head>
+<body>
+<div id="pw-overlay"><div id="pw-box"><div style="font-family:Georgia,serif;font-size:26px;color:#2D2D2D;margin-bottom:6px;">@preciadamente</div><div style="font-size:14px;color:#6B6B6B;margin-bottom:28px;">Documento privado</div><input id="pw-input" type="password" placeholder="Contrasena" autocomplete="off"><button id="pw-btn">Acceder</button><div id="pw-error">Contrasena incorrecta</div></div></div>
+
+<div id="progress-bar"></div>
+<div id="global-toast"></div>
+
+<!-- ── STICKY NAV ── -->
+<nav id="sticky-nav">
+  <div class="nav-dot active" data-target="s-framework"><span class="nav-tooltip">Narrativa</span></div>
+  <div class="nav-dot" data-target="s-vpc"><span class="nav-tooltip">Propuesta de valor</span></div>
+  <div class="nav-dot" data-target="s-mensajes"><span class="nav-tooltip">Mensajes clave</span></div>
+  <div class="nav-dot" data-target="s-arquitectura"><span class="nav-tooltip">Arquitectura</span></div>
+  <div class="nav-dot" data-target="s-visual"><span class="nav-tooltip">Identidad visual</span></div>
+  <div class="nav-dot" data-target="s-cialdini"><span class="nav-tooltip">Persuasión</span></div>
+  <div class="nav-dot" data-target="s-next"><span class="nav-tooltip">Siguientes pasos</span></div>
+</nav>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="header-orb o1"></div>
+  <div class="header-orb o2"></div>
+  <div class="header-orb o3"></div>
+  <div class="header-badge">Propuesta estratégica web</div>
+  <h1>Tu nueva web,<br>diseñada para conectar.</h1>
+  <p>Estrategia de marketing y diseño para que las familias que más te necesitan te encuentren — y confíen en ti antes de escribirte.</p>
+  <div class="header-handle">@preciadamente · Lourdes de la Cruz Reina</div>
+</header>
+
+<!-- ── STATS ── -->
+<div class="stats-strip">
+  <div class="stat-item">
+    <div class="stat-number" data-target="9">0</div>
+    <div class="stat-label">Secciones estratégicas</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" data-target="5">0</div>
+    <div class="stat-label">Principios de persuasión</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" data-target="4">0</div>
+    <div class="stat-label">Colores de marca</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" data-target="100">0</div>
+    <div class="stat-label">% Mobile-first</div>
+  </div>
+</div>
+
+<!-- ── 01 FRAMEWORK ── -->
+<div class="section" id="s-framework">
+  <div class="container">
+    <div class="section-label">01 — Narrativa</div>
+    <h2 class="section-title">El framework elegido: StoryBrand</h2>
+    <p class="section-sub">El mejor enfoque cuando la confianza lo es todo. Los padres son los héroes — Lourdes es la guía.</p>
+
+    <div class="framework-card">
+      <p>Los padres no buscan una psicóloga — buscan solución para su hijo. <strong>StoryBrand</strong> pone al niño y a los padres como protagonistas de una historia de cambio. Lourdes aparece como la guía experta con empatía y resultados probados. Su cercanía y sus reseñas son la evidencia perfecta para ese rol.</p>
+
+      <div class="story-roles">
+        <div class="role-card">
+          <div class="role-emoji">👨‍👩‍👧</div>
+          <div class="role-tag">Héroe</div>
+          <strong>Los padres</strong>
+          <p>Preocupados, perdidos, buscando lo mejor para su hijo</p>
+        </div>
+        <div class="role-card">
+          <div class="role-emoji">🌿</div>
+          <div class="role-tag">Guía</div>
+          <strong>Lourdes</strong>
+          <p>Cercana, con experiencia real y resultados que hablan por sí solos</p>
+        </div>
+        <div class="role-card">
+          <div class="role-emoji">✨</div>
+          <div class="role-tag">Transformación</div>
+          <strong>El niño feliz</strong>
+          <p>Emocionalmente estable, en paz consigo mismo y con su entorno</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 02 VPC ── -->
+<div class="section" id="s-vpc">
+  <div class="container">
+    <div class="section-label">02 — Propuesta de valor</div>
+    <h2 class="section-title">Por qué las familias van a elegirte</h2>
+    <p class="section-sub">Haz clic en cada pestaña para explorar los 4 pilares de tu propuesta de valor.</p>
+
+    <div class="vpc-tabs">
+      <button class="vpc-tab active" data-panel="pains">😟 Lo que duele</button>
+      <button class="vpc-tab" data-panel="gains">🌟 Lo que desean</button>
+      <button class="vpc-tab" data-panel="relievers">💚 Cómo los alivias</button>
+      <button class="vpc-tab" data-panel="creators">🎯 Lo que consiguen</button>
+    </div>
+
+    <div class="vpc-panel active" id="panel-pains">
+      <div class="vpc-content">
+        <h3>Dolores actuales (Pains)</h3>
+        <p class="vpc-intro">Las frustraciones reales que sienten los padres antes de buscar ayuda:</p>
+        <ul class="vpc-list">
+          <li><span>😰</span> No saber si lo que le pasa al niño "es normal"</li>
+          <li><span>🏥</span> Miedo a una consulta fría y clínica — que el niño no se abra</li>
+          <li><span>😞</span> Haber probado cosas que no funcionaron</li>
+          <li><span>👨‍👩‍👦</span> Sentirse juzgados como padres por pedir ayuda</li>
+          <li><span>❓</span> No saber por dónde empezar ni a quién acudir</li>
+        </ul>
+      </div>
+    </div>
+    <div class="vpc-panel" id="panel-gains">
+      <div class="vpc-content">
+        <h3>Lo que desean conseguir (Gains)</h3>
+        <p class="vpc-intro">El resultado final que los padres visualizan cuando buscan ayuda:</p>
+        <ul class="vpc-list">
+          <li><span>😊</span> Ver a su hijo tranquilo y feliz otra vez</li>
+          <li><span>🤝</span> Que alguien conecte de verdad con el niño</li>
+          <li><span>📈</span> Resultados reales y visibles, no solo promesas</li>
+          <li><span>✅</span> Sentir que están haciendo lo correcto como padres</li>
+          <li><span>🏠</span> Paz y armonía en casa</li>
+        </ul>
+      </div>
+    </div>
+    <div class="vpc-panel" id="panel-relievers">
+      <div class="vpc-content">
+        <h3>Cómo Lourdes alivia esos dolores (Pain Relievers)</h3>
+        <p class="vpc-intro">Tu diferencial frente al resto de psicólogas infantiles:</p>
+        <ul class="vpc-list">
+          <li><span>🌿</span> Trato cercano — los niños se abren contigo de verdad</li>
+          <li><span>👕</span> Sin bata blanca ni distancia clínica — ambiente seguro y cálido</li>
+          <li><span>🎁</span> Primera consulta gratis — sin riesgo ni compromiso</li>
+          <li><span>⭐</span> Reseñas reales que demuestran que funciona</li>
+        </ul>
+      </div>
+    </div>
+    <div class="vpc-panel" id="panel-creators">
+      <div class="vpc-content">
+        <h3>Beneficios reales que genera (Gain Creators)</h3>
+        <p class="vpc-intro">La transformación concreta que viven las familias tras trabajar contigo:</p>
+        <ul class="vpc-list">
+          <li><span>💬</span> Un niño que habla, se expresa y gestiona sus emociones</li>
+          <li><span>🛠️</span> Herramientas para seguir el trabajo en casa</li>
+          <li><span>🤗</span> Acompañamiento real durante todo el proceso, no solo en sesión</li>
+          <li><span>🧘</span> Tranquilidad de saber que el niño está bien atendido</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 03 MENSAJES ── -->
+<div class="section" id="s-mensajes">
+  <div class="container">
+    <div class="section-label">03 — Copy y mensajes clave</div>
+    <h2 class="section-title">Las palabras que van a convertir</h2>
+    <p class="section-sub">Los 3 niveles de mensaje de la web. Haz clic en "Copiar" para usarlo directamente.</p>
+
+    <div class="msg-tabs">
+      <button class="msg-tab active" data-msg="h1">H1 — Promesa</button>
+      <button class="msg-tab" data-msg="h2">H2 — Mecanismo</button>
+      <button class="msg-tab" data-msg="so">Soporte — Credibilidad</button>
+    </div>
+
+    <div class="msg-panel active" id="msg-h1">
+      <div class="msg-card">
+        <div class="msg-badge">Titular principal · máx. 10 palabras</div>
+        <div class="msg-quote" id="text-h1">"Tu hijo tiene más dentro de lo que crees. Ayúdale a sacarlo."</div>
+        <p class="msg-why">Por qué funciona: habla directamente al padre, no habla del servicio. Genera curiosidad y esperanza a la vez. El niño es el protagonista.</p>
+        <button class="copy-btn" data-copy="h1">📋 Copiar texto</button>
+      </div>
+    </div>
+    <div class="msg-panel" id="msg-h2">
+      <div class="msg-card">
+        <div class="msg-badge">Subtítulo · máx. 20 palabras</div>
+        <div class="msg-quote" id="text-h2">"Terapia infantil cercana y sin bata blanca para niños de 5 a 15 años — porque los niños no se abren con cualquiera."</div>
+        <p class="msg-why">Por qué funciona: aclara el "para quién", nombra el diferencial (cercanía) y planta una semilla de duda sobre otras opciones.</p>
+        <button class="copy-btn" data-copy="h2">📋 Copiar texto</button>
+      </div>
+    </div>
+    <div class="msg-panel" id="msg-so">
+      <div class="msg-card">
+        <div class="msg-badge">Mensaje de soporte · credibilidad inmediata</div>
+        <div class="msg-quote" id="text-so">"Más de [X] familias ya han dado el primer paso. Primera consulta gratis, sin compromiso."</div>
+        <p class="msg-why">Por qué funciona: número social + oferta de bajo riesgo. Elimina la fricción de contactar antes de que aparezca.</p>
+        <button class="copy-btn" data-copy="so">📋 Copiar texto</button>
+      </div>
+    </div>
+
+    <!-- Hero preview -->
+    <div class="hero-preview">
+      <div class="preview-label">→ Vista previa del hero de la web</div>
+      <h2>Tu hijo tiene más dentro de lo que crees. Ayúdale a sacarlo.</h2>
+      <p>Terapia infantil cercana y sin bata blanca para niños de 5 a 15 años — porque los niños no se abren con cualquiera.</p>
+      <div class="hero-btns">
+        <button class="btn-primary">Consulta gratis — sin compromiso</button>
+        <button class="btn-secondary">Ver cómo trabajo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 04 ARQUITECTURA ── -->
+<div class="section" id="s-arquitectura">
+  <div class="container">
+    <div class="section-label">04 — Estructura</div>
+    <h2 class="section-title">Arquitectura de la web (9 secciones)</h2>
+    <p class="section-sub">Haz clic en cada sección para ver qué contenido irá dentro.</p>
+
+    <div class="sections-timeline">
+
+      <div class="tl-item" data-tl="0">
+        <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+        <div class="tl-body">
+          <div class="tl-header">
+            <div class="tl-num">1</div>
+            <div class="tl-title-wrap">
+              <div class="tl-name">Hero</div>
+              <div class="tl-sub">Primera impresión — captura atención en &lt;5 segundos</div>
+            </div>
+            <div class="tl-arrow">▶</div>
+          </div>
+          <div class="tl-detail">
+            <ul>
+              <li>H1 con la promesa principal de transformación</li>
+              <li>Subheadline con el diferencial y el público objetivo</li>
+              <li>Botón CTA principal: "Consulta gratis — sin compromiso"</li>
+              <li>Número de familias atendidas como prueba social rápida</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-tl="1">
+        <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+        <div class="tl-body">
+          <div class="tl-header">
+            <div class="tl-num">2</div>
+            <div class="tl-title-wrap">
+              <div class="tl-name">¿Te suena esto?</div>
+              <div class="tl-sub">Problema / Agitación</div>
+            </div>
+            <div class="tl-arrow">▶</div>
+          </div>
+          <div class="tl-detail">
+            <ul>
+              <li>Lista de 4-5 síntomas exactos que reconocen los padres</li>
+              <li>Tono empático, sin juicio — "no estás solo/a"</li>
+              <li>Transición natural hacia la solución</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-tl="2">
+        <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+        <div class="tl-body">
+          <div class="tl-header">
+            <div class="tl-num">3</div>
+            <div class="tl-title-wrap">
+              <div class="tl-name">Por qué Lourdes</div>
+              <div class="tl-sub">Diferenciador — cercanía + resultados probados</div>
+            </div>
+            <div class="tl-arrow">▶</div>
+          </div>
+          <div class="tl-detail">
+            <ul>
+              <li>Foto de Lourdes + descripción en primera persona</li>
+              <li>El mecanismo único: por qué los niños se abren con ella</li>
+              <li>Formación y años de experiencia</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-tl="3">
+        <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+        <div class="tl-body">
+          <div class="tl-header">
+            <div class="tl-num">4</div>
+            <div class="tl-title-wrap">
+              <div class="tl-name">Qué trabajamos</div>
+              <div class="tl-sub">Servicios y especialidades</div>
+            </div>
+            <div class="tl-arrow">▶</div>
+          </div>
+          <div class="tl-detail">
+            <ul>
+              <li>Ansiedad infantil, miedos y fobias</li>
+              <li>Problemas de conducta y regulación emocional</li>
+              <li>TDAH, dificultades de atención</li>
+              <li>Gestión del divorcio o cambios familiares</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-tl="4">
+        <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+        <div class="tl-body">
+          <div class="tl-header">
+            <div class="tl-num">5</div>
+            <div class="tl-title-wrap">
+              <div class="tl-name">Cómo funciona</div>
+              <div class="tl-sub">Proceso en 3 pasos — reduce la fricción</div>
+            </div>
+            <div class="tl-arrow">▶</div>
+          </div>
+          <div class="tl-detail">
+            <ul>
+              <li>Paso 1: Contactas y cuéntame qué pasa</li>
+              <li>Paso 2: Primera sesión gratis — sin compromiso</li>
+              <li>Paso 3: Empezamos juntos el proceso</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-tl="5">
+        <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+        <div class="tl-body">
+          <div class="tl-header">
+            <div class="tl-num">6</div>
+            <div class="tl-title-wrap">
+              <div class="tl-name">Lo que dicen las familias</div>
+              <div class="tl-sub">Prueba social — testimonios reales en texto</div>
+            </div>
+            <div class="tl-arrow">▶</div>
+          </div>
+          <div class="tl-detail">
+            <ul>
+              <li>3-4 testimonios con nombre y contexto del caso</li>
+              <li>Especificidad: resultados concretos, no frases genéricas</li>
+              <li>Formato tarjeta con estrellitas de valoración</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-tl="6">
+        <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+        <div class="tl-body">
+          <div class="tl-header">
+            <div class="tl-num">7</div>
+            <div class="tl-title-wrap">
+              <div class="tl-name">Preguntas frecuentes</div>
+              <div class="tl-sub">FAQ — objeciones disfrazadas de preguntas</div>
+            </div>
+            <div class="tl-arrow">▶</div>
+          </div>
+          <div class="tl-detail">
+            <ul>
+              <li>¿Qué pasa si mi hijo no quiere hablar con nadie?</li>
+              <li>¿Cuánto tiempo dura el proceso?</li>
+              <li>¿Haces sesiones online o solo presencial?</li>
+              <li>¿A partir de qué edad puedes tratar a los niños?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-tl="7">
+        <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+        <div class="tl-body">
+          <div class="tl-header">
+            <div class="tl-num">8</div>
+            <div class="tl-title-wrap">
+              <div class="tl-name">Da el primer paso</div>
+              <div class="tl-sub">CTA final — captura a quienes llegaron hasta aquí</div>
+            </div>
+            <div class="tl-arrow">▶</div>
+          </div>
+          <div class="tl-detail">
+            <ul>
+              <li>Resumen de la propuesta en 1-2 líneas</li>
+              <li>Formulario minimalista: nombre + email + teléfono</li>
+              <li>Micro-copy de bajo riesgo: "Sin permanencia, sin compromiso"</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item" data-tl="8">
+        <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+        <div class="tl-body">
+          <div class="tl-header">
+            <div class="tl-num">9</div>
+            <div class="tl-title-wrap">
+              <div class="tl-name">Footer</div>
+              <div class="tl-sub">Confianza, legal y redes sociales</div>
+            </div>
+            <div class="tl-arrow">▶</div>
+          </div>
+          <div class="tl-detail">
+            <ul>
+              <li>Contacto directo (email + teléfono)</li>
+              <li>Link a Instagram @preciadamente</li>
+              <li>Aviso legal y política de privacidad</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── 05 IDENTIDAD VISUAL ── -->
+<div class="section" id="s-visual">
+  <div class="container">
+    <div class="section-label">05 — Identidad visual</div>
+    <h2 class="section-title">Paleta de colores y tipografía</h2>
+    <p class="section-sub">Haz clic en cualquier color para copiar el código hexadecimal.</p>
+
+    <div class="color-grid">
+      <div class="color-swatch" data-hex="#7BAF8E">
+        <div class="swatch-block" style="background:#7BAF8E;">
+          <span class="swatch-copy-icon">📋</span>
+          <span class="swatch-toast">¡Copiado!</span>
+        </div>
+        <div class="swatch-info">
+          <div class="swatch-name">Verde salvia</div>
+          <div class="swatch-hex">#7BAF8E</div>
+          <div class="swatch-role">Color primario</div>
+        </div>
+      </div>
+      <div class="color-swatch" data-hex="#F4A97F">
+        <div class="swatch-block" style="background:#F4A97F;">
+          <span class="swatch-copy-icon">📋</span>
+          <span class="swatch-toast">¡Copiado!</span>
+        </div>
+        <div class="swatch-info">
+          <div class="swatch-name">Melocotón</div>
+          <div class="swatch-hex">#F4A97F</div>
+          <div class="swatch-role">CTAs principales</div>
+        </div>
+      </div>
+      <div class="color-swatch" data-hex="#FDF8F2">
+        <div class="swatch-block" style="background:#FDF8F2; border-bottom: 1px solid #E8DDD0;">
+          <span class="swatch-copy-icon">📋</span>
+          <span class="swatch-toast">¡Copiado!</span>
+        </div>
+        <div class="swatch-info">
+          <div class="swatch-name">Crema</div>
+          <div class="swatch-hex">#FDF8F2</div>
+          <div class="swatch-role">Fondo principal</div>
+        </div>
+      </div>
+      <div class="color-swatch" data-hex="#2D2D2D">
+        <div class="swatch-block" style="background:#2D2D2D;">
+          <span class="swatch-copy-icon" style="color:#fff;">📋</span>
+          <span class="swatch-toast">¡Copiado!</span>
+        </div>
+        <div class="swatch-info">
+          <div class="swatch-name">Gris oscuro</div>
+          <div class="swatch-hex">#2D2D2D</div>
+          <div class="swatch-role">Texto principal</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="font-demo">
+      <div class="font-row">
+        <div>
+          <div class="font-tag">Títulos</div>
+          <div style="font-family:'Playfair Display',serif; font-size:32px; color:#2D2D2D; line-height:1.2; margin-bottom:8px;">Playfair Display</div>
+          <div style="font-family:'Playfair Display',serif; font-size:18px; font-style:italic; color:#7BAF8E; margin-bottom:12px;">"Elegante y cercana a la vez"</div>
+          <p style="font-size:13px; color:#6B6B6B;">Transmite calidez y seriedad sin resultar clínica. Perfecta para una terapeuta que quiere conectar emocionalmente.</p>
+        </div>
+        <div class="font-divider"></div>
+        <div>
+          <div class="font-tag">Cuerpo de texto</div>
+          <div style="font-family:'Lato',sans-serif; font-size:28px; font-weight:300; color:#2D2D2D; margin-bottom:8px;">Lato Regular</div>
+          <div style="font-family:'Lato',sans-serif; font-size:15px; color:#6B6B6B; margin-bottom:12px;">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz · 0123456789</div>
+          <p style="font-size:13px; color:#6B6B6B;">Limpia, moderna y perfectamente legible en cualquier tamaño de pantalla. El estándar de la web profesional.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 06 CIALDINI ── -->
+<div class="section" id="s-cialdini">
+  <div class="container">
+    <div class="section-label">06 — Psicología de la persuasión</div>
+    <h2 class="section-title">5 principios que van a generar confianza</h2>
+    <p class="section-sub">Haz clic en cada tarjeta para ver cómo se aplica exactamente en la web de Lourdes.</p>
+
+    <div class="cialdini-grid">
+      <div class="cial-card" data-cial="0">
+        <span class="cial-emoji">🎁</span>
+        <div class="cial-title">Reciprocidad</div>
+        <div class="cial-desc">Quien da primero, recibe confianza a cambio.</div>
+        <div class="cial-example">→ "Primera consulta gratis, sin compromiso" aparece en el hero, en la sección de proceso y en el CTA final.</div>
+        <div class="cial-hint">Toca para ver más</div>
+      </div>
+      <div class="cial-card" data-cial="1">
+        <span class="cial-emoji">⭐</span>
+        <div class="cial-title">Prueba social</div>
+        <div class="cial-desc">Tus reseñas reales son tu mayor activo de conversión.</div>
+        <div class="cial-example">→ Sección de testimonios con nombre, contexto del caso y resultado concreto. Más creíble que cualquier texto de marketing.</div>
+        <div class="cial-hint">Toca para ver más</div>
+      </div>
+      <div class="cial-card" data-cial="2">
+        <span class="cial-emoji">🏅</span>
+        <div class="cial-title">Autoridad</div>
+        <div class="cial-desc">Formación y experiencia como señales de credibilidad.</div>
+        <div class="cial-example">→ Sección "Por qué Lourdes" con titulación, años de experiencia y número de familias atendidas.</div>
+        <div class="cial-hint">Toca para ver más</div>
+      </div>
+      <div class="cial-card" data-cial="3">
+        <span class="cial-emoji">🤝</span>
+        <div class="cial-title">Simpatía</div>
+        <div class="cial-desc">La gente contrata personas, no servicios.</div>
+        <div class="cial-example">→ Foto real de Lourdes + descripción en primera persona y tono conversacional. Los padres deben sentir que ya la conocen.</div>
+        <div class="cial-hint">Toca para ver más</div>
+      </div>
+      <div class="cial-card" data-cial="4">
+        <span class="cial-emoji">⏳</span>
+        <div class="cial-title">Escasez legítima</div>
+        <div class="cial-desc">Un motivo real para actuar hoy, no mañana.</div>
+        <div class="cial-example">→ "Plazas limitadas por mes para mantener la calidad del trato individual." Razón genuina — no urgencia falsa.</div>
+        <div class="cial-hint">Toca para ver más</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 07 NEXT STEPS ── -->
+<div class="section" id="s-next">
+  <div class="container">
+    <div class="next-card">
+      <h3>¿Apruebas esta estrategia?</h3>
+      <p>Si todo tiene sentido, el siguiente paso es generar el código completo de la web.</p>
+      <div class="steps-row">
+        <div class="step">
+          <div class="step-n">01</div>
+          <h4>Aprobación</h4>
+          <p>Confirmas la estrategia, colores y mensajes clave — o pides los ajustes que necesites.</p>
+        </div>
+        <div class="step">
+          <div class="step-n">02</div>
+          <h4>Código completo</h4>
+          <p>Se genera <code>index.html</code> con todas las secciones y <code>crm.html</code> para gestionar los contactos.</p>
+        </div>
+        <div class="step">
+          <div class="step-n">03</div>
+          <h4>Lista para usar</h4>
+          <p>Abres el archivo en el navegador y tienes la web funcionando. Sin servidores, sin costes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="doc-footer">
+  <strong>@preciadamente</strong> · Lourdes de la Cruz Reina · Estrategia web — Mayo 2026
+</div>
+
+<script>
+(function(){if(sessionStorage.getItem("pw")==="1"){document.getElementById("pw-overlay").style.display="none";return;}function check(){if(document.getElementById("pw-input").value==="estrategia"){sessionStorage.setItem("pw","1");document.getElementById("pw-overlay").style.display="none";}else{var e=document.getElementById("pw-error");e.style.opacity="1";document.getElementById("pw-input").value="";setTimeout(function(){e.style.opacity="0";},2000);}}document.getElementById("pw-btn").addEventListener("click",check);document.getElementById("pw-input").addEventListener("keydown",function(e){if(e.key==="Enter")check();});})();
+
+  // ── PROGRESS BAR ──
+  const bar = document.getElementById('progress-bar');
+
+  // ── COUNTERS ──
+  function animateCounter(el, target, suffix) {
+    suffix = suffix || '';
+    var start = 0;
+    var duration = 1200;
+    var step = function(timestamp) {
+      if (!start) start = timestamp;
+      var progress = Math.min((timestamp - start) / duration, 1);
+      var ease = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.floor(ease * target) + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  var countersDone = [];
+  var statEls = document.querySelectorAll('.stat-number');
+
+  // ── STICKY NAV ──
+  var sections = ['s-framework','s-vpc','s-mensajes','s-arquitectura','s-visual','s-cialdini','s-next'];
+  var dots = document.querySelectorAll('.nav-dot');
+
+  function isVisible(el) {
+    var rect = el.getBoundingClientRect();
+    return rect.top < window.innerHeight && rect.bottom > 0;
+  }
+
+  function onScroll() {
+    var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    var scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollHeight > 0) bar.style.width = (scrollTop / scrollHeight * 100) + '%';
+
+    statEls.forEach(function(el) {
+      if (countersDone.indexOf(el) === -1 && isVisible(el)) {
+        countersDone.push(el);
+        var target = parseInt(el.dataset.target);
+        animateCounter(el, target, target === 100 ? '%' : '');
+      }
+    });
+
+    var activeSet = false;
+    for (var i = sections.length - 1; i >= 0; i--) {
+      var sec = document.getElementById(sections[i]);
+      if (sec) {
+        var rect = sec.getBoundingClientRect();
+        if (rect.top <= window.innerHeight / 2) {
+          dots.forEach(function(d) { d.classList.remove('active'); });
+          var dot = document.querySelector('.nav-dot[data-target="' + sections[i] + '"]');
+          if (dot) dot.classList.add('active');
+          activeSet = true;
+          break;
+        }
+      }
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  onScroll();
+  setTimeout(onScroll, 400);
+
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      var target = document.getElementById(dot.dataset.target);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // ── VPC TABS ──
+  document.querySelectorAll('.vpc-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.vpc-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.vpc-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  // ── MESSAGE TABS ──
+  document.querySelectorAll('.msg-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.msg-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.msg-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('msg-' + tab.dataset.msg).classList.add('active');
+    });
+  });
+
+  // ── COPY BUTTONS ──
+  const texts = {
+    h1: 'Tu hijo tiene más dentro de lo que crees. Ayúdale a sacarlo.',
+    h2: 'Terapia infantil cercana y sin bata blanca para niños de 5 a 15 años — porque los niños no se abren con cualquiera.',
+    so: 'Más de [X] familias ya han dado el primer paso. Primera consulta gratis, sin compromiso.'
+  };
+
+  function showToast(msg) {
+    const t = document.getElementById('global-toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    return Promise.resolve();
+  }
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.copy;
+      copyText(texts[key]).then(() => {
+        btn.textContent = '✅ ¡Copiado!';
+        btn.classList.add('copied');
+        showToast('Texto copiado al portapapeles');
+        setTimeout(() => {
+          btn.textContent = '📋 Copiar texto';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  });
+
+  // ── COLOR SWATCHES ──
+  document.querySelectorAll('.color-swatch').forEach(swatch => {
+    swatch.addEventListener('click', () => {
+      const hex = swatch.dataset.hex;
+      copyText(hex).then(() => {
+        swatch.classList.add('copied');
+        showToast(hex + ' copiado al portapapeles');
+        setTimeout(() => swatch.classList.remove('copied'), 2000);
+      });
+    });
+  });
+
+  // ── TIMELINE ACCORDION ──
+  document.querySelectorAll('.tl-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.tl-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  // ── CIALDINI EXPAND ──
+  document.querySelectorAll('.cial-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const isExp = card.classList.contains('expanded');
+      document.querySelectorAll('.cial-card').forEach(c => c.classList.remove('expanded'));
+      if (!isExp) card.classList.add('expanded');
+    });
+  });
+</script>
+
+</body>
+</html>
